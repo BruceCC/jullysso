@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
@@ -20,6 +21,12 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
+
+/**
+ * Authorization Server Configuration
+ * @author Bruce Zhong
+ */
+
 
 @Configuration
 @EnableAuthorizationServer
@@ -38,6 +45,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Autowired
     private AuthorizationCodeServices authorizationCodeServices;
+
+   /* @Autowired
+    private AuthenticationManager authenticationManager;*/
 
     /*@Bean
     @ConfigurationProperties(prefix = "spring.datasource")
@@ -70,7 +80,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer authorizationServerSecurityConfigurer) throws Exception {
-        /*authorizationServerSecurityConfigurer.allowFormAuthenticationForClients();*/
+        authorizationServerSecurityConfigurer.allowFormAuthenticationForClients()
+                .tokenKeyAccess("permitAll()")
+                .checkTokenAccess("isAuthenticated()");
     }
 
     @Override
