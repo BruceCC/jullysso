@@ -100,30 +100,28 @@ END$
 DELIMITER ;
 
 
-
-DROP FUNCTION IF EXISTS nextval;
+DROP FUNCTION IF EXISTS curr_seq_val;
 DELIMITER $
-CREATE FUNCTION nextval (seq_name VARCHAR(50))
-RETURNS INTEGER
-CONTAINS SQL
+CREATE  FUNCTION `curr_seq_val`(`v_seq_name` varchar(128)) RETURNS varchar(2048) CHARSET utf8
 BEGIN
-   UPDATE sequence
-   SET          current_value = current_value + increment
-   WHERE name = seq_name;
-   RETURN currval(seq_name);
+	DECLARE r_current_val BIGINT;
+	DECLARE r_max_val BIGINT;
+	set r_current_val=0;
+	set r_max_val=0;
+	SELECT t.current_val, t.max_val from july_sequence t where t.seq_name=v_seq_name
+	into r_current_val, r_max_val;
+
+
+	RETURN LPAD(r_current_val,LENGTH(r_max_val),'0');
 END$
 DELIMITER ;
 
-DROP FUNCTION IF EXISTS setval;
+DROP FUNCTION IF EXISTS next_seq_val;
 DELIMITER $
-CREATE FUNCTION setval (seq_name VARCHAR(50), value INTEGER)
-RETURNS INTEGER
-CONTAINS SQL
+CREATE  FUNCTION `next_seq_val`(`v_seq_name` varchar(128)) RETURNS varchar(2048) CHARSET utf8
 BEGIN
-   UPDATE sequence
-   SET          current_value = value
-   WHERE name = seq_name;
-   RETURN currval(seq_name);
+	update july_sequence t set t.current_val = t.current_val + t.increment_val  where t.seq_name = v_seq_name;
+	return curr_seq_val(v_seq_name);
 END$
 DELIMITER ;
 
